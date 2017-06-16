@@ -3,41 +3,41 @@ console.log('I am alive!');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {HashRouter, Route, Switch} from 'react-router-dom';
-import Voting from './components/Voting';
-import Results from './components/Results';
+import {VotingContainer} from './components/Voting';
+import {ResultsContainer} from './components/Results';
 
 import {List, Map} from 'immutable';
 
-const pair = List.of('Trainspotting', '28 Days Later');
-const tally = Map({'Trainspotting': 5, '28 Days Later': 4});
+import {createStore} from 'redux';
+import reducer from './reducer';
+import {Provider} from 'react-redux';
 
-class VotingWarper extends React.PureComponent {
-    render() {
-        return <Voting pair={pair} hasVoted="Trainspotting"/>;
+const store = createStore(reducer);
+store.dispatch({
+    type: 'SET_STATE',
+    state: {
+        vote: {
+            pair: ['Sunshine', '28 Days Later'],
+            tally: { 'Sunshine': 2 }
+        },
+        hasVoted: 'Sunshine'
     }
-};
-
-class ResultsWarper extends React.PureComponent {
-    render() {
-        return <Results pair={pair} 
-                    tally={tally} 
-                    winner="Trainspotting"
-                    next={()=>console.log("Next clicked")}/>;
-    }
-};
+});
 
 const Main = () => ( 
     <main>
         <Switch>
-            <Route path="/results" component={ResultsWarper} />
-            <Route path="/" component={VotingWarper} />
+            <Route path="/results" component={ResultsContainer} />
+            <Route path="/" component={VotingContainer} />
         </Switch>
     </main>
 );
 
 ReactDOM.render(
-    <HashRouter>
-        <Main />
-    </HashRouter>,
+    <Provider store={store}>
+        <HashRouter>
+            <Main />
+        </HashRouter>
+    </Provider>,
     document.getElementById('app')
 )
